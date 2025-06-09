@@ -120,7 +120,10 @@ def pools_to_dataframe(pools: List[Dict[str, Any]]) -> pd.DataFrame:
                 "volume_usd_24h": _f(attrs.get("volume_usd_24h")),
                 "volume_usd_7d": _f(attrs.get("volume_usd_7d")),
                 "tvl_usd": _f(attrs.get("reserve_usd")),
-                "price_change_24h": _f(attrs.get("price_percent_change_24h")),
+                # percentage price change over 24h
+                "price_change_pct_24h": _f(
+                    attrs.get("price_percent_change_24h")
+                ),
             }
         )
     return pd.DataFrame(records)

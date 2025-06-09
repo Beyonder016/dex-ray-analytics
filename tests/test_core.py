@@ -15,9 +15,9 @@ import pandas as pd
 import plotly.graph_objects as go
 import pytest
 
-from scripts.fetch_data import fetch_data
-from scripts.analyzer import analyzer
-from scripts.visualizer import visualizer
+import scripts.fetch_data as fetch_data
+import scripts.analyzer as analyzer
+import scripts.visualizer as visualizer
 
 
 # ---------------------------------------------------------------------------
