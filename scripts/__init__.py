@@ -8,9 +8,7 @@ can simply write:
 """
 
 # ---- public re-exports -----------------------------------------------------
-from .fetch_data import fetch_data        # function (or class) in fetch_data.py
-from .analyzer   import analyzer          # idem in analyzer.py
-from .visualizer import visualizer        # idem in visualizer.py
+from . import fetch_data, analyzer, visualizer
 
 __all__: list[str] = ["fetch_data", "analyzer", "visualizer"]
 # ---------------------------------------------------------------------------
