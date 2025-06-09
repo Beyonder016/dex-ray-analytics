@@ -33,6 +33,12 @@ HEADERS = {
     "User-Agent": "DeX-Ray/1.0 (+https://github.com/yourusername/dex-ray-analytics)"
 }
 
+# Re-export this module as ``fetch_data`` so tests can simply do
+# ``from scripts.fetch_data import fetch_data`` and access the functions on
+# the module object.
+import sys
+fetch_data = sys.modules[__name__]
+
 def _request(endpoint: str, params: dict | None = None) -> Dict[str, Any]:
     """Internal helper to perform a GET request and return JSON.
 
@@ -108,8 +114,11 @@ def pools_to_dataframe(pools: List[Dict[str, Any]]) -> pd.DataFrame:
     records = []
     for item in pools:
         attrs = item.get("attributes", {})
-        token_a = attrs.get("token_a_symbol")
-        token_b = attrs.get("token_b_symbol")
+        # GeckoTerminal changed token key names from `token_a_symbol`/`token_b_symbol`
+        # to `token0_symbol`/`token1_symbol`. Support either style for backward
+        # compatibility.
+        token_a = attrs.get("token_a_symbol") or attrs.get("token0_symbol")
+        token_b = attrs.get("token_b_symbol") or attrs.get("token1_symbol")
         records.append(
             {
                 "pool_id": item.get("id"),
@@ -119,8 +128,18 @@ def pools_to_dataframe(pools: List[Dict[str, Any]]) -> pd.DataFrame:
                 "price_usd": _f(attrs.get("price_usd")),
                 "volume_usd_24h": _f(attrs.get("volume_usd_24h")),
                 "volume_usd_7d": _f(attrs.get("volume_usd_7d")),
-                "tvl_usd": _f(attrs.get("reserve_usd")),
-                "price_change_24h": _f(attrs.get("price_percent_change_24h")),
+                # Reserve liquidity was renamed from `reserve_usd` →
+                # `reserve_in_usd` on the API.  Map either to our `tvl_usd`
+                # column.
+                "tvl_usd": _f(
+                    attrs.get("reserve_usd") or attrs.get("reserve_in_usd")
+                ),
+                # Output column name changed to clarify that this is a percent
+                # change value.
+                "price_change_pct_24h": _f(
+                    attrs.get("price_percent_change_24h")
+                    or attrs.get("price_change_percentage_24h")
+                ),
             }
         )
     return pd.DataFrame(records)

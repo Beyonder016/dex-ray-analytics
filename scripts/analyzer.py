@@ -28,6 +28,12 @@ from __future__ import annotations
 
 import pandas as pd
 from pathlib import Path
+import sys
+
+# Similar to ``fetch_data`` we expose the module object as ``analyzer`` so that
+# test code can import ``from scripts.analyzer import analyzer`` and access the
+# helpers defined here.
+analyzer = sys.modules[__name__]
 
 # ---------------------------------------------------------------------------
 # Core helpers
